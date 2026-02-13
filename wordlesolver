@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+import argparse
+import re
+from pathlib import Path
+from icecream import ic
+
+parser = argparse.ArgumentParser(
+                    prog='wordlesolver',
+                    description='Solve wordle and derivative puzzles')
+
+parser.add_argument('-d', '--dict', help='Dictionary to use')
+parser.add_argument('-r', '--reject', help='Letters to reject')
+parser.add_argument('position', nargs='+')
+args = parser.parse_args()
+ic(args)
+
+re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
+ic(re_reject)
+dictfilename=f"{Path(__file__).parent}/{args.dict}"
+try:
+    f = open(dictfilename)
+except FileNotFoundError:
+    print(f"Could not open {dictfilename}.")
+else:
+    with f:
+        for line in f:
+            word = line.rstrip()
+            positions = len(args.position)
+            # Ignore words with length other than number of positional args
+            if (len(word) != positions):
+                continue
+            # Ignore words with rejected characters
+            if(re.search(re_reject, word)):
+                continue
+            # Match each position
+            for n in range(len(word)):
+                if not re.search(args.position[n], list(word)[n], re.IGNORECASE):
+                    break
+            else:
+                print(word)
+
+            

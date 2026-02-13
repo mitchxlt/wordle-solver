@@ -3,5 +3,8 @@
 ```
 wordlesolver -d/--dict <ngerman|american-english|...> \
              -r/--reject xyz... \
-             <Regex> ....
+             <Regex> .... # (As many as there are letters in the word)
 ```
+
+Todo/Fixme:
+- argparse argument validation / help output
