@@ -24,7 +24,8 @@ options:
 Todo/Fixme:
 * [x] Rename: `solver`
 * [x] Pseudo regex
-* [x] make sure "elsewhere" characters appear elsewhere in the word
+* [ ] make sure "elsewhere" characters appear elsewhere in the word
+  * Still not complete, match separately, not as class
 * [x] Do *something* about characters that are greyed out because they aren't in the word *twice*
 * [x] argparse cleanup
 * [x] Dictionary discovery, search in ./dicts, in /usr/share/dicts, absolute filename
