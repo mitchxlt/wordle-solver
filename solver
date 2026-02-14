@@ -3,12 +3,10 @@ import argparse
 import re
 from pathlib import Path
     
-parser = argparse.ArgumentParser(
-                    prog='wordlesolver',
-                    description='Solve wordle and derivative puzzles')
+parser = argparse.ArgumentParser(description='Solve wordle and derivative puzzles')
 
 parser.add_argument('-d', '--dict', help='Dictionary to use', required=True)
-parser.add_argument('-r', '--reject', help='Letters to reject', required=True)
+parser.add_argument('-r', '--reject', help='Letters to globally reject', required=True)
 parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=none of abc, d=exactly d', nargs='+')
 args = parser.parse_args()
 
