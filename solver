@@ -2,20 +2,26 @@
 import argparse
 import re
 from pathlib import Path
-from icecream import ic
-
+    
 parser = argparse.ArgumentParser(
                     prog='wordlesolver',
                     description='Solve wordle and derivative puzzles')
 
-parser.add_argument('-d', '--dict', help='Dictionary to use')
-parser.add_argument('-r', '--reject', help='Letters to reject')
-parser.add_argument('position', nargs='+')
+parser.add_argument('-d', '--dict', help='Dictionary to use', required=True)
+parser.add_argument('-r', '--reject', help='Letters to reject', required=True)
+parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=none of abc, d=exactly d', nargs='+')
 args = parser.parse_args()
-ic(args)
 
+# Globally rejected characters, compile to regex
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
-ic(re_reject)
+
+# If a position description starts with ^, convert it to a character class regex
+for n in range(len(args.position)):
+    if re.search(r'^\^', args.position[n]):
+        args.position[n] = f"[{args.position[n]}]"
+    args.position[n] = re.compile(args.position[n], re.IGNORECASE)
+
+# Process the dictionary line by line
 dictfilename=f"{Path(__file__).parent}/{args.dict}"
 try:
     f = open(dictfilename)
@@ -29,14 +35,12 @@ else:
             # Ignore words with length other than number of positional args
             if (len(word) != positions):
                 continue
-            # Ignore words with rejected characters
+            # Ignore words with globally rejected characters
             if(re.search(re_reject, word)):
                 continue
             # Match each position
             for n in range(len(word)):
-                if not re.search(args.position[n], list(word)[n], re.IGNORECASE):
+                if not re.search(args.position[n], list(word)[n]):
                     break
             else:
                 print(word)
-
-            
