@@ -1,26 +1,55 @@
 #!/usr/bin/env python3
 import argparse
 import re
+import sys
 from pathlib import Path
+# from icecream import ic
     
 parser = argparse.ArgumentParser(description='Solve wordle and derivative puzzles')
 
-parser.add_argument('-d', '--dict', help='Dictionary to use', required=True)
+parser.add_argument('-d', '--dict', help='Dictionary to use (absolute filename, name in /usr/share/dict, name in ./dicts)', required=True)
 parser.add_argument('-r', '--reject', help='Letters to globally reject', required=True)
-parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=none of abc, d=exactly d', nargs='+')
+parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=elsewhere (yellow), d=d here (green)', nargs='+')
 args = parser.parse_args()
 
 # Globally rejected characters, compile to regex
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 
-# If a position description starts with ^, convert it to a character class regex
+# Precompiled re for non-word characters
+re_nonword = re.compile(r'\W')
+
+global_elsewhere_characters=set()
 for n in range(len(args.position)):
     if re.search(r'^\^', args.position[n]):
+        # Elsewhere character: Prepare for the elsewhere regex
+        for character in list(args.position[n])[1:]:
+            global_elsewhere_characters.add(character)
+        # And rewrite as a negated character class
         args.position[n] = f"[{args.position[n]}]"
+    elif re.search(r'..', args.position[n]):
+        # Bogus position knowledge
+        print("Confirm single character or mark as unknown (.).")
+        sys.exit(1)
+    elif re.search(r'^\w$', args.position[n]) and re.search(args.position[n], args.reject):
+        # Edge case: Character is confirmed in one place but rejected in another
+        print(f"Character {args.position[n]} is positional-confirmed but globally-rejected.")
+        sys.exit(1)
+    # Compile position knowledge as regex
     args.position[n] = re.compile(args.position[n], re.IGNORECASE)
 
+# Prepare global elsewhere regex only if elsewhere knowledge was passed
+if len(global_elsewhere_characters):
+    re_global_elsewhere=re.compile(f"[{''.join(global_elsewhere_characters)}]", re.IGNORECASE)
+
+# Find dictionary
+if Path(args.dict).exists():
+    dictfilename=args.dict 
+elif Path(f"/usr/share/dict/{args.dict}").exists():
+    dictfilename=f"/usr/share/dict/{args.dict}"
+else:
+    dictfilename=f"{Path(__file__).parent}/dicts/{args.dict}"
+
 # Process the dictionary line by line
-dictfilename=f"{Path(__file__).parent}/{args.dict}"
 try:
     f = open(dictfilename)
 except FileNotFoundError:
@@ -33,9 +62,18 @@ else:
             # Ignore words with length other than number of positional args
             if (len(word) != positions):
                 continue
+            # Ignore words with non-word characters
+            if(re.search(re_nonword, word)):
+                continue
             # Ignore words with globally rejected characters
             if(re.search(re_reject, word)):
                 continue
+            # Ignore words without the global elsewhere characters
+            try:
+                if not re.search(re_global_elsewhere, word):
+                    continue
+            except:
+                pass # re may be undefined
             # Match each position
             for n in range(len(word)):
                 if not re.search(args.position[n], list(word)[n]):

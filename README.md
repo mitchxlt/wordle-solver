@@ -6,14 +6,20 @@ usage: solver [-h] -d DICT -r REJECT position [position ...]
 Solve wordle and derivative puzzles
 
 positional arguments:
-  position              Knowledge per position: .=unknown, ^abc=elsewhere, d=d here
+  position              Knowledge per position: .=unknown, ^abc=elsewhere (yellow), d=d here (green)
 
 options:
   -h, --help            show this help message and exit
-  -d DICT, --dict DICT  Dictionary to use
+  -d DICT, --dict DICT  Dictionary to use (absolute filename, name in /usr/share/dict, name in ./dicts)
   -r REJECT, --reject REJECT
                         Letters to globally reject
 ```
+
+* Dictionary search order:
+  * Exact path
+  * dicts directory next to the binary
+  * /usr/share/dict
+
 
 Todo/Fixme:
 * [x] Rename: `solver`
@@ -21,9 +27,7 @@ Todo/Fixme:
 * [x] make sure "elsewhere" characters appear elsewhere in the word
 * [x] Do *something* about characters that are greyed out because they aren't in the word *twice*
 * [x] argparse cleanup
-  * [x] `required=True`
-  * [x] `help='Knowledge per position: .=unknown, ^abc=none of these, x=exactly this'`
-* [ ] Dictionary discovery, search in ./dicts, in /usr/share/dicts, absolute filename
+* [x] Dictionary discovery, search in ./dicts, in /usr/share/dicts, absolute filename
 * [ ] Note on included dicts, licenses from Debian package
 * [ ] Documentation by example
 * [ ] Dict for BOFHLE
