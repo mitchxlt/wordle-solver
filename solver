@@ -8,7 +8,7 @@ from pathlib import Path
 parser = argparse.ArgumentParser(description='Solve wordle and derivative puzzles')
 
 parser.add_argument('-d', '--dict', help='Dictionary to use (absolute filename, name in /usr/share/dict, name in ./dicts)', required=True)
-parser.add_argument('-r', '--reject', help='Letters to globally reject', required=True)
+parser.add_argument('-r', '--reject', help='Letters to globally reject')
 parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=elsewhere (yellow), d=d here (green)', nargs='+')
 args = parser.parse_args()
 
