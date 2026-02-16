@@ -16,7 +16,8 @@ args = parser.parse_args()
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 
 # Validate input
-for n in range(len(args.position)):
+length = len(args.position)
+for n in range(length):
     if re.search(r'^\^', args.position[n]):
         # rewrite as a negated character class
         args.position[n] = f"[{args.position[n]}]"
@@ -48,9 +49,8 @@ else:
     with f:
         for line in f:
             word = line.rstrip()
-            positions = len(args.position)
             # Ignore words with length other than number of positional args
-            if (len(word) != positions):
+            if (len(word) != length):
                 continue
             # Ignore words with globally rejected characters
             if(re.search(re_reject, word)):
