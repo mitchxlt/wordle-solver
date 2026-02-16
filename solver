@@ -27,6 +27,11 @@ for n in range(positions):
         # Convert to non-negate character class
         elsewhere_regex[n] = re.compile(f"[{result.group(1)}]", re.IGNORECASE)
         elsewhere_positions.add(n)
+        # Character specified as elsewhere but rejected globally
+        for m in list(result.group(1)):
+            if re.search(m, args.reject, re.IGNORECASE):
+                print(f"Character {m} is elsewhere-confirmed but globally-rejected.")
+                sys.exit(1)
     elif re.search(r'..', args.position[n]):
         # Bogus position knowledge
         print("Invalid position knowledge.")
