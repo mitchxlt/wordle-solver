@@ -18,17 +18,14 @@ re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 # Precompiled re for non-word characters
 re_nonword = re.compile(r'\W')
 
-global_elsewhere_characters=set()
+# Validate input
 for n in range(len(args.position)):
     if re.search(r'^\^', args.position[n]):
-        # Elsewhere character: Prepare for the elsewhere regex
-        for character in list(args.position[n])[1:]:
-            global_elsewhere_characters.add(character)
-        # And rewrite as a negated character class
+        # rewrite as a negated character class
         args.position[n] = f"[{args.position[n]}]"
     elif re.search(r'..', args.position[n]):
         # Bogus position knowledge
-        print("Confirm single character or mark as unknown (.).")
+        print("Invalid position knowledge.")
         sys.exit(1)
     elif re.search(r'^\w$', args.position[n]) and re.search(args.position[n], args.reject):
         # Edge case: Character is confirmed in one place but rejected in another
@@ -36,10 +33,6 @@ for n in range(len(args.position)):
         sys.exit(1)
     # Compile position knowledge as regex
     args.position[n] = re.compile(args.position[n], re.IGNORECASE)
-
-# Prepare global elsewhere regex only if elsewhere knowledge was passed
-if len(global_elsewhere_characters):
-    re_global_elsewhere=re.compile(f"[{''.join(global_elsewhere_characters)}]", re.IGNORECASE)
 
 # Find dictionary
 if Path(args.dict).exists():
@@ -68,12 +61,6 @@ else:
             # Ignore words with globally rejected characters
             if(re.search(re_reject, word)):
                 continue
-            # Ignore words without the global elsewhere characters
-            try:
-                if not re.search(re_global_elsewhere, word):
-                    continue
-            except:
-                pass # re may be undefined
             # Match each position
             for n in range(len(word)):
                 if not re.search(args.position[n], list(word)[n]):
