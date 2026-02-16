@@ -70,6 +70,8 @@ else:
             if usable==False:
                 continue
             # Elsewhere letters must all be present somewhere else in the word
+            # There still is an edge case here, I think if a letter is rejected
+            #   twice that's in the word twice, or something
             usable = 0
             for n in elsewhere_positions:
                 if re.search(elsewhere_regex[n], word):
