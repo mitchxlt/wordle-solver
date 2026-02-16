@@ -62,7 +62,7 @@ else:
             if re.search(re_reject, word):
                 continue
             # Match each position
-            usable=True # Unless proven otherweise
+            usable=True
             for n in range(positions):
                 # Confirmed letter is in the known position, or elsewhere letter is absent
                 if not re.search(position_regex[n], list(word)[n]):
