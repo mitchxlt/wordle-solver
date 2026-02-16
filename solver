@@ -3,7 +3,7 @@ import argparse
 import re
 import sys
 from pathlib import Path
-# from icecream import ic
+#from icecream import ic
     
 parser = argparse.ArgumentParser(description='Solve wordle and derivative puzzles')
 
@@ -15,12 +15,18 @@ args = parser.parse_args()
 # Globally rejected characters, compile to regex
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 
-# Validate input
-positionals = len(args.position)
-for n in range(positionals):
-    if re.search(r'^\^', args.position[n]):
+# Validate input, generate and precompile all regular expressions
+positions = len(args.position)
+elsewhere_positions = set()
+position_regex = dict()
+elsewhere_regex = dict()
+for n in range(positions):
+    if result := re.search(r'^\^(.+)', args.position[n]):
         # rewrite as a negated character class
         args.position[n] = f"[{args.position[n]}]"
+        # Convert to non-negate character class
+        elsewhere_regex[n] = re.compile(f"[{result.group(1)}]", re.IGNORECASE)
+        elsewhere_positions.add(n)
     elif re.search(r'..', args.position[n]):
         # Bogus position knowledge
         print("Invalid position knowledge.")
@@ -30,7 +36,7 @@ for n in range(positionals):
         print(f"Character {args.position[n]} is positional-confirmed but globally-rejected.")
         sys.exit(1)
     # Compile position knowledge as regex
-    args.position[n] = re.compile(args.position[n], re.IGNORECASE)
+    position_regex[n] = re.compile(args.position[n], re.IGNORECASE)
 
 # Find dictionary
 if Path(args.dict).exists():
@@ -49,16 +55,26 @@ else:
     with f:
         for line in f:
             word = line.rstrip()
-            # Ignore words with positionals other than number of positional args
-            if (len(word) != positionals):
+            # Ignore words with length other than number of positional args
+            if len(word) != positions:
                 continue
             # Ignore words with globally rejected characters
-            if(re.search(re_reject, word)):
+            if re.search(re_reject, word):
                 continue
             # Match each position
-            for n in range(positionals):
-                # Confirmed and elsewhere letters
-                if not re.search(args.position[n], list(word)[n]):
-                    break
-            else:
-                print(word)
+            usable=True # Unless proven otherweise
+            for n in range(positions):
+                # Confirmed letter is in the known position, or elsewhere letter is absent
+                if not re.search(position_regex[n], list(word)[n]):
+                    usable=False
+            if usable==False:
+                continue
+            # Elsewhere letters must all be present somewhere else in the word
+            usable = 0
+            for n in elsewhere_positions:
+                if re.search(elsewhere_regex[n], word):
+                    usable += 1
+            if usable != len(elsewhere_positions):
+                continue
+            # Still here?
+            print(word)
