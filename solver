@@ -15,9 +15,6 @@ args = parser.parse_args()
 # Globally rejected characters, compile to regex
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 
-# Precompiled re for non-word characters
-re_nonword = re.compile(r'\W')
-
 # Validate input
 for n in range(len(args.position)):
     if re.search(r'^\^', args.position[n]):
@@ -54,9 +51,6 @@ else:
             positions = len(args.position)
             # Ignore words with length other than number of positional args
             if (len(word) != positions):
-                continue
-            # Ignore words with non-word characters
-            if(re.search(re_nonword, word)):
                 continue
             # Ignore words with globally rejected characters
             if(re.search(re_reject, word)):
