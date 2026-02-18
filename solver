@@ -19,14 +19,17 @@ re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
 positions = len(args.position)
 elsewhere_positions = set()
 position_regex = dict()
-elsewhere_regex = dict()
+elsewhere_regexes = dict()
 for n in range(positions):
     if result := re.search(r'^\^(.+)', args.position[n]):
         # rewrite as a negated character class
         args.position[n] = f"[{args.position[n]}]"
-        # Convert to non-negate character class
-        elsewhere_regex[n] = re.compile(f"[{result.group(1)}]", re.IGNORECASE)
+        # Elsewhere characters turn into a set of regexes per position
+        #   all of which will have to match the word
+        elsewhere_regexes[n] = set()
         elsewhere_positions.add(n)
+        for c in list(result.group(1)):
+            elsewhere_regexes[n].add(re.compile(c, re.IGNORECASE))
         # Character specified as elsewhere but rejected globally
         for m in list(result.group(1)):
             if re.search(m, args.reject, re.IGNORECASE):
@@ -77,11 +80,12 @@ else:
             # Elsewhere letters must all be present somewhere else in the word
             # There still is an edge case here, I think if a letter is rejected
             #   twice that's in the word twice, or something
-            usable = 0
+            usable = True
             for n in elsewhere_positions:
-                if re.search(elsewhere_regex[n], word):
-                    usable += 1
-            if usable != len(elsewhere_positions):
+                for m in elsewhere_regexes[n]:
+                    if not re.search(m, word):
+                        usable = False
+            if usable==False:
                 continue
             # Still here?
             print(word)
