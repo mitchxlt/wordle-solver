@@ -48,7 +48,7 @@ options:
 * Reject S, T, O and E globally
 * Reject N only on position 4
 
-`./solver -d us -r stoe . . . ^n .`
+`./solver --dict us --reject stoe . . . ^n .`
 
 ![image](screenshots/drawn2.png)
 
@@ -57,7 +57,7 @@ options:
 * Reject M, I and C globally
 * Reject A on position 2 and N on position 3
 
-`./solver -d us -r stoemic . ^a ^n ^n .`
+`./solver --dict us --reject stoemic . ^a ^n ^n .`
 
 ![image](screenshots/drawn3.png)
 
@@ -67,7 +67,7 @@ options:
 * Reject A on position 4
 * Confirm R for position 2 and N for position 5
 
-`./solver -d us -r stoemicub . r ^n ^na n`
+`./solver --dict us --reject stoemicub . r ^n ^na n`
 
 ![image](screenshots/drawn4.png)
 
@@ -76,7 +76,7 @@ options:
 * Reject P globally
 * Confirm R, A, W and N for the last 4 positions
 
-`./solver -d us -r stoemicubp . r a w n`
+`./solver --dict us --reject stoemicubp . r a w n`
 
 ![image](screenshots/drawn5.png)
 
