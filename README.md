@@ -1,7 +1,9 @@
 # Mitch's Wordle Solver
 
+## Synposis
+
 ```
-usage: solver [-h] -d DICT -r REJECT position [position ...]
+usage: solver [-h] -d DICT [-r REJECT] position [position ...]
 
 Solve wordle and derivative puzzles
 
@@ -15,21 +17,73 @@ options:
                         Letters to globally reject
 ```
 
+## Dictionaries
+
 * Dictionary search order:
   * Exact path
-  * dicts directory next to the binary
-  * /usr/share/dict
-
-
-Todo/Fixme:
-* [x] Rename: `solver`
-* [x] Pseudo regex
-* [ ] make sure "elsewhere" characters appear elsewhere in the word
-  * Still not complete, match separately, not as class
-* [x] Do *something* about characters that are greyed out because they aren't in the word *twice*
-* [x] argparse cleanup
-* [x] Dictionary discovery, search in ./dicts, in /usr/share/dicts, absolute filename
-* [ ] Note on included dicts, licenses from Debian package
-* [ ] Documentation by example
-* [ ] Dict for BOFHLE
+  * `dicts` directory next to the binary
+  * `/usr/share/dict`
+* Included dictionaries sourced from:
+  * **us** - The Debian *wamerican* package
+    * http://wordlist.sourceforge.net/
+    * Misc. BSD-style licences
+  * **de** - The Debian *wngerman* package
+    * http://wordlist.sourceforge.net/
+    * Misc. GPL, LGPL and BSD-style licenses
+* The **man** dictionary was generated on Debian Linux as follows:
   * `apt-file search '/usr/share/man' | awk -F[./] '/man[168]/{print $(NF-2)}' | sort -u`  
+
+## Example
+
+### Step 1
+
+* Pick any 5 letter word for the first guess
+
+`./solver --dict us . . . . . | shuf`
+
+![image](screenshots/drawn1.png)
+
+### Step 2
+
+* Reject S, T, O and E globally
+* Reject N only on position 4
+
+`./solver -d us -r stoe . . . ^n .`
+
+![image](screenshots/drawn2.png)
+
+### Step 3
+
+* Reject M, I and C globally
+* Reject A on position 2 and N on position 3
+
+`./solver -d us -r stoemic . ^a ^n ^n .`
+
+![image](screenshots/drawn3.png)
+
+### Step 4
+
+* Reject U and B globally
+* Reject A on position 4
+* Confirm R for position 2 and N for position 5
+
+`./solver -d us -r stoemicub . r ^n ^na n`
+
+![image](screenshots/drawn4.png)
+
+### Step 5
+
+* Reject P globally
+* Confirm R, A, W and N for the last 4 positions
+
+`./solver -d us -r stoemicubp . r a w n`
+
+![image](screenshots/drawn5.png)
+
+## License and disclaimer
+
+The `solver` script is marked CC0 1.0. To view a copy of this mark, visit https://creativecommons.org/publicdomain/zero/1.0/
+
+## Special thanks
+
+https://hellowordl.net for providing random wordles and wordles of arbitrary length.
