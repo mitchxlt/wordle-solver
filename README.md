@@ -1,6 +1,6 @@
 # Mitch's Wordle Solver
 
-## Synposis
+## Synopsis
 
 ```
 usage: solver [-h] -d DICT [-r REJECT] position [position ...]
