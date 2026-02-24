@@ -9,11 +9,15 @@ parser = argparse.ArgumentParser(description='Solve wordle and derivative puzzle
 
 parser.add_argument('-d', '--dict', help='Dictionary to use (absolute filename, name in /usr/share/dict, name in ./dicts)', required=True)
 parser.add_argument('-r', '--reject', help='Letters to globally reject')
+parser.add_argument('-W', '--nonword', help='Allow non-word characters (dash, apostrophe etc.)', action='store_true')
 parser.add_argument('position', help='Knowledge per position: .=unknown, ^abc=elsewhere (yellow), d=d here (green)', nargs='+')
 args = parser.parse_args()
 
 # Globally rejected characters, compile to regex
 re_reject = re.compile(f"[{args.reject}]", re.IGNORECASE)
+
+# Pre-compile the non-word character
+re_nonword = re.compile (r"\W")
 
 # Validate input, generate and precompile all regular expressions
 positions = len(args.position)
@@ -65,6 +69,9 @@ else:
             word = line.rstrip()
             # Ignore words with length other than number of positional args
             if len(word) != positions:
+                continue
+            # Ignore words with non-word characters
+            if re.search(re_nonword, word) and not args.nonword:
                 continue
             # Ignore words with globally rejected characters
             if re.search(re_reject, word):

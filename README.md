@@ -3,7 +3,7 @@
 ## Synopsis
 
 ```
-usage: solver [-h] -d DICT [-r REJECT] position [position ...]
+usage: solver [-h] -d DICT [-r REJECT] [-W] position [position ...]
 
 Solve wordle and derivative puzzles
 
@@ -15,6 +15,7 @@ options:
   -d DICT, --dict DICT  Dictionary to use (absolute filename, name in /usr/share/dict, name in ./dicts)
   -r REJECT, --reject REJECT
                         Letters to globally reject
+  -W, --nonword         Allow non-word characters (dash, apostrophe etc.)
 ```
 
 ## Dictionaries
